@@ -1,0 +1,131 @@
+---
+title: "lab_02"
+author: "derek willis"
+date: "2023-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load libraries and establish settings
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load the tidyverse. If you have not installed the tidyverse already, remove the # from the next line and run it first.  
+# install.packages('tidyverse')
+library(tidyverse)
+library(lubridate)
+```
+
+## Load Data
+
+Let's keep working with the UMD courses and Maryland campaign expense data we used in the pre_lab.
+
+```{r}
+umd_courses <- read_rds("data/umd_courses.rds")
+maryland_expenses <- read_csv("data/maryland_expenses.csv")
+```
+
+## Answer questions
+
+**Q1.** How many departments have offered the courses with "Climate" in the title and at least one seat? Which department has offered the most?
+**A1.** there are 28 departments with a class that has "climate" in the title and three departments are tied for having the least seat, Public Health Science, MPower Undergraduate Law Programs, Comparative Literature 
+
+```{r}
+
+umd_courses |> 
+filter(str_detect(title, "Climate")) |> filter(seats >= 1) |> 
+  group_by(department) |> 
+  summarize(count_classes = n()) |> 
+  arrange(desc(count_classes))
+```
+
+**Q2.** Of the departments listed in A2, which one is the most interesting to you, and why?
+**A2.** Some of the departments had few classes than I think make sense, like Public Health and Journalism. I wonder if there is another term that means something similar to climate that are about climate and don't have that word in the title. 
+
+
+**Q3** Which departments have the most courses in the Fall 2023 term? And which departments in that term have at least one syllabus posted? How are the top five departments different in each result?
+
+**A3.** The top five departments with the most courses are Business, School of Music, English, Journalism, Information studies 
+        The top five departments with the most courses and at least on syllabus posted are Business, Economics, Public Policy, Information Science and Biological Sciences 
+
+```{r}
+
+
+
+umd_courses |> 
+filter(str_detect(term, "202301")) |> 
+  group_by(department) |> 
+  summarize(count_classes = n()) |> 
+  arrange(desc(count_classes))
+
+
+umd_courses |> 
+filter(str_detect(term, "202301")) |> filter(syllabus_count >= 1) |> 
+  group_by(department) |> 
+  summarize(count_classes = n()) |> 
+  arrange(desc(count_classes))
+
+
+```
+
+**Q4.** Using the Maryland campaign expenses data, change the datatype of the expenditure_date column so that it is a date and not a chr, saving the result as the same dataframe. Then create a new column for the month based on expenditure_date. Then write code that shows total amount spent each month by Wes Moore's committee (you'll need to search the data to find the exact name). Write a sentence describing the pattern of spending over time.
+**A4.** Moore's spending fluctuated seemingly with out pattern but general trending upward. Spending was the lowest the first month at around 6,000, and spent the most in the second the last month, 3 million dollars. 
+
+```{r}
+maryland_expenses <- read_csv("data/maryland_expenses.csv")
+
+maryland_expenses <- maryland_expenses |> mutate(expenditure_date=mdy(expenditure_date))
+
+maryland_expenses |>
+  mutate(month = floor_date(expenditure_date, "month")) |>
+  filter(str_detect(committee_name, "Moore  Wes For Maryland"))|>
+  group_by(month) |>
+  summarise(total_amount = sum(amount)) |>
+  arrange(month)
+
+```
+
+**Q5.** Using case_when(), create a column in the Maryland expenses data called `spending_location` indicating whether each record spent money in Maryland or outside Maryland. For records that are in Maryland, make the new column's value "In-state" and for the others, make it "Out of state". Then write code that shows the total amount of money spent in each category and describe the results. You can do this in one statement or break it up into two statements (saving the new column to your dataframe).
+**A5** The results do not make sense. It makes it seem like Wes Moore has only instate doners. 
+
+```{r}
+maryland_expenses <- read_csv("data/maryland_expenses.csv")
+
+maryland_expenses_with_state <- maryland_expenses |>
+  mutate(
+    state = case_when(
+        str_detect(address, " Maryland ") ~ "In State",
+        .default = "Out of State"
+
+    )
+    )
+        
+maryland_expenses_with_state |>
+  group_by(state) |>
+  summarize(total = sum(amount)) |>
+  arrange(desc(total))
+
+
+    
+```
+
+
+**Q6.** Choose your own adventure: using either the UMD courses or campaign expenses data, ask and answer a question that is different than the previous ones. You can use one of the ones you provided in the pre_lab.
+**A6.** Which classes in the journalism school have the most students and which have the least? rank in order. A: JOUR175 and JOUR199 are tied for having the most seats, and there is no single class with the least seat because there are many graduate school classes with one seat. 
+
+```{r}
+umd_courses <- read_rds("data/umd_courses.rds")
+maryland_expenses <- read_csv("data/maryland_expenses.csv")
+
+  umd_courses |> 
+  filter(str_detect(department, "Journalism")) |> 
+          group_by(id) |>
+    summarize(count_seats = n()) |> 
+    arrange(desc(count_seats))
+
+```
