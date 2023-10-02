@@ -106,7 +106,7 @@ md_grants_loans |>
 
 Q5: Using the Maryland grants and loan data, find records where the zip code is the one where the University of Maryland-College Park is located in and produce a list of grantees from that zip code, along with the total amount they received. Write a paragraph explaining how many grantees are there, what you would need to do to clean the results so that you had one record per grantee and which grantees are most interesting to you?
 
-A5: There are 18 observations in the 20742 zip code. Some appear to be repeat because there are multiple terms that just mean College Park. 
+A5: There are 18 observations in the 20742 zip code. Some appear to be repeat because there are multiple terms that just mean College Park. Some of them look like mistakes like OVALTZ or REMEDIUM, I wonder if those are mistakes. 
 
 ```{r}
 
