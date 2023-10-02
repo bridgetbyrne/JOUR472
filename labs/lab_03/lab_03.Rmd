@@ -91,7 +91,7 @@ md_payments |>
 
 Q4: You want to understand how much state grant money went to stem cell research projects each fiscal year. Search the data to find grants that fit that description. Once you find which column(s) contain the information you want, your code should find just the grants for stem cell research in a single filter. Then calculate the total amount of money for each fiscal year. Write a sentence summarizing how stem cell research funding has changed over time.
 
-A4: The total peaked in 2009 and has been dropping lower each year but staying above 6000000.
+A4: The total peaked in 2009 and has been dropping lower each year but staying above 6254308
 
 ```{r}
 md_grants_loans |> 
