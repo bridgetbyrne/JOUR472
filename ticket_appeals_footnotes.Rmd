@@ -1,0 +1,130 @@
+---
+title: "bryne_parking_analysis"
+author: "Victoria Stavish"
+date: "2023-10-03"
+output: html_document
+---
+
+```{r}
+# load libraries
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+
+```
+
+
+```{r}
+
+## total ticket data set 
+df <- read_csv('citationsissued.csv')
+
+```
+
+
+# How many citations are there per lot? 
+
+# Union Lane Garage has the most citations at 3,624
+
+# the sum of all citations is 43226, which means that Union Lane Garage accounts for 8% of all citations
+
+```{r}
+
+#Select only relevant columns and find the count of each distinct location mentioned in the location column. Put this finding into a 'locations' dataframe.
+df<- df[,1:5]
+summary(df)
+n_distinct(df$Location)
+locations <- as.data.frame(table(df$Location))
+
+# Victoria finding sum of all citations in Union Lane Garage and the  using that to find the % of citations that happen in Union Lane Garage
+sum(locations$Freq)
+# sum is 43226
+(3624/43226)*100
+
+```
+# Victoria redoing this - how many citations are there BY COST?
+```{r}
+  
+
+# how many citations are there per type?  
+summary(df)
+n_distinct(df$Base.Amount)
+amounts <- table(df$Base.Amount)
+percents<- (amounts/sum(amounts))*100
+amounts
+
+# Victoria redoing this - how many citations are there BY COST?
+# most tickets (22084) cost 85 dollas
+df <- df %>%
+  clean_names()
+
+n_distinct(df$base_amount)
+amounts <- as.data.frame(table(df$base_amount))
+
+# victoria finding % of tickets that cost 85 dollas
+
+sum(amounts$Freq)
+# sum is 43227
+(22084/43227)*100
+# oh wow only 51% of tickets cost 85 dollas, looks like the next highest % is 45 dollas at FORTY PERCENT
+(17611/43227)*100
+
+```
+# how many citations are there >$100 by lot? 
+```{r}
+
+# how many citations are there >$100 by lot? 
+# 565 tickets were over 100 dollars
+expensive_tx <-filter(df, base_amount > 100)
+sum(expensive_tx$base_amount)
+2960865-2826335
+# $134,530 were paid in tickets $100 or more
+expensive_locs <- as.data.frame(table(expensive_tx$location))
+# stamp student union is the most expensive lot
+sum(expensive_locs$Freq)
+(38/565)*100
+# stamp makes up nearly 7% of expensive parking tickets
+
+#NEW FROM BRIDGET percentage of tickets from stamp over 100
+(38/50)*100
+
+```
+
+#total appeals
+
+```{r}
+
+# total appeals  
+df2 <- read_csv('citationappeals.csv')
+
+#NEW FROM BRIDGET what percent of parking tickets are appealed 
+8427/43226 
+
+#NEW FROM BRIDGET what percent of parking tickets  resulted in a voided citation, a fine reduction, or the citation was dropped to a warming?
+6213/43226
+
+# what percent of appeals are accepted? 73.727%
+   # 8,427 completed appeals and 6,123 appeals resulted in a voided citation, a fine reduction, or the citation was dropped to a warming
+    (6213/8427)*100
+   # what percent of appeals resulted in a fine reduction? 41.189%   
+    (3471/8427)*100
+   # what percent of appeals resulted in a void? 32.526%   
+    (2741/8427)*100
+
+41.18904 + 32.5264
+   # what percent of appeals resulted in a warning? 1%<
+    (7/8427)*100
+
+# what percent of second appeals get accepted? 10.909%
+   # there are 55 completed second appeals, 3 resulted in a voided citation and three resulted in a fine reduction  
+    6/55
+
+# what percent of appeals get accept by lot? The parking ticket appeal data does not have the lot variable
+# how many appeals are there per lot? The parking ticket appeal data does not have the lot variable
+
+
+```
+```{r}
+#test
+```
