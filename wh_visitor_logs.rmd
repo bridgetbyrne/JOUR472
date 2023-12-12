@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "White House Vistor Log"
 author: "Bridget, Shaela, Sydney, Robert"
 date: "2023-11-18"
 output: html_document
@@ -187,9 +187,7 @@ wh_records_refined|>
 
 ```
 
-
-Question 5 - how frequently does house or senate leadership visit the WH? A better question is what percentage of the logged visits are from leaders of the house or senate. We haven't thoroughly investigated this question yet, but we believe that we could create a list of names of high-ranking leadership: speaker of the house, minority whip, etc., and write a code using string detect and mutate to create a column that will be marked as yes if the entry is from a member of the house/senate leadership, and no if it is not. 
-
+Question 4: Who visited/was visited early and late?
 
 ```{r}
 #people who are a visitor very early or very late (I took this to mean outside of working hours)
@@ -290,6 +288,8 @@ visitor_hour_23_wh <- wh_records_combined_dates_and_names_wo_extra |>
 
 #hour 8 has the most visitors 
 ```
+
+Question 5: how frequently does house or senate leadership visit the WH? A better question is what percentage of the logged visits are from leaders of the house or senate. We haven't thoroughly investigated this question yet, but we believe that we could create a list of names of high-ranking leadership: speaker of the house, minority whip, etc., and write a code using string detect and mutate to create a column that will be marked as yes if the entry is from a member of the house/senate leadership, and no if it is not. 
 
 Senate: 
 D- Patty Murray, Chuck Shumer, Dick Durbin, Elizabeth Warren, Mark Warner 
