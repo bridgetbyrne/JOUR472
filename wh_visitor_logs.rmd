@@ -15,9 +15,11 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 ```{r}
 #loading libraries
+library(stringr)
+library(ggplot2)
+library(lubridate)
 library(tidyverse)
 library(janitor)
-library(lubridate)
 ```
 
 ```{r}
@@ -132,21 +134,23 @@ wh_records_combined_dates_and_names <- wh_records_combined_names|>
          appointment_made_date_cln = mdy_hm(appointment_made_date), 
          toa_cln= mdy_hm(toa))
 
+
+
+wh_records_combined_dates_and_names <- wh_records_combined_dates_and_names |>
+  mutate (hour = hour(toa_cln)) |>
+  mutate (month = month(toa_cln)) |>
+  mutate (weekdays = weekdays(toa_cln)) |>
+  mutate (week = week(toa_cln))
+
+
+wh_records_combined_dates_and_names_wo_extra <- wh_records_combined_dates_and_names |>
+  select(-last_name, -first_name, -middle_initial, -bdgnbr, -poa, -tod, -pod, -last_updated_by, -post, -terminal_suffix, -terminal_suffix, -visitee_last_name, -visitee_first_name, -access_type)
+
+
 ```
 
-
-***Discussion*** 
-Flaws and limitations hindering us answering our questions: after cleaning up the data, we believe we will be able to answer question 1 regarding who visited the white house most in 2022 and 2023. 
-
-We also believe we will be able to answer question 2 - who is visited most often - by looking at the most frequently listed visitees. 
-
-We can also look at what percentage of the visits are to the POTUS (president) or even to the FLOTUS (first lady)
-
-For which time of day, day of the week, etc. is busiest, we could toa data, however there are several NAs in that column. So any findings we make will have to be caveated by that. Also, the date and time are combined in one column, we may need to look into how we can split those. 
-
-Question 1- Who visits the most? 
+Question 1: Who visits the most? 
 Answer: Michael N Herzog visits the white house the most with 108 visits. After doing research I found that he's Israel's Ambassador to the U.S.
-
 ```{r}
 wh_records_combined_names |>
   group_by(full_name_visitor) |>
@@ -158,8 +162,9 @@ wh_records_combined_names |>
 wh_records_combined_names
 ```
 
-Question 2- Who gets the most visitors?
+Question 2: Who gets the most visitors?
 Answer: Outside of the president, the three individuals who receive the most visitors are Ed Teleky (Director of Ceremonies at the White House), Gionelly Mills (Staff Assistant focusing on Communications, Celebrity Engagement, and Events at the White House), and Lydia Hecmanczuk (IT Specialist in the Executive Office of the President).
+
 ```{r}
 #refining the visitee record using open refine
 write_csv(wh_records_combined_dates_and_names_wo_extra, file = "data/white_house_records.csv")
@@ -169,58 +174,122 @@ wh_records_refined |>
   group_by(full_names_visitee)|>
   summarise(count_visitee = n())|>
   arrange(desc(count_visitee))
-
-
 ```
 
 
-Question 3- How frequently does the president get visitors? Robert, which % of all visits are the POTUS.
+Question 3: How frequently does the president get visitors? Robert, which % of all visits are the POTUS.
 Answer: Roughly 8.9% of visitors to the white house log that they are visiting the POTUS.
 ```{r}
 wh_records_refined|>
   summarise(total_visits =n())
 #POTUS visits(71777)/Total Number of Visits(805,945)
 (71777/805945)*100
-```
-
-
-Question 4- What time of the day is the busiest for visitors? Which day of the week? Which week of the year?
-Answer: The hour that receives the greatest number of visits is 10 a.m. July was the month with the most number of visits. Week 24 in mid June was the week with the greatest amounts of visits, and Saturday was the day of the week with the most number of visits. 
-
-
-```{r}
-#adding a column for month, day of the week, week in the year, and hour in the day
-wh_records_combined_dates_and_names_wo_extra_mutated <- wh_records_combined_dates_and_names_wo_extra |>
-  mutate (hour = hour(toa_cln)) |>
-  mutate (month = month(toa_cln)) |>
-  mutate (weekdays = weekdays(toa_cln)) |>
-  mutate (week = week(toa_cln))
-
-#most common hour- 10 A.M.
-wh_records_combined_dates_and_names_wo_extra_mutated |>
-  group_by(hour) |>
-  summarise(count_visits = n())|>
-  arrange(desc(count_visits))
-#most common month- July 
-wh_records_combined_dates_and_names_wo_extra_mutated |>
-  group_by(month) |>
-  summarise(count_visits = n())|>
-  arrange(desc(count_visits))
-#most common week- week 24 (mid June)
-wh_records_combined_dates_and_names_wo_extra_mutated |>
-  group_by(week) |>
-  summarise(count_visits = n())|>
-  arrange(desc(count_visits))
-#most common weekday- Saturday
-wh_records_combined_dates_and_names_wo_extra_mutated |>
-  group_by(weekdays) |>
-  summarise(count_visits = n())|>
-  arrange(desc(count_visits))
 
 ```
 
 
 Question 5 - how frequently does house or senate leadership visit the WH? A better question is what percentage of the logged visits are from leaders of the house or senate. We haven't thoroughly investigated this question yet, but we believe that we could create a list of names of high-ranking leadership: speaker of the house, minority whip, etc., and write a code using string detect and mutate to create a column that will be marked as yes if the entry is from a member of the house/senate leadership, and no if it is not. 
+
+
+```{r}
+#people who are a visitor very early or very late (I took this to mean outside of working hours)
+
+#before 9 am, no visitors from hour 2 or hour 3
+
+visitor_hour_1_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 1)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_2_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 2)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_3_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 3)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_4_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 4)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_5_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 5)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_6_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 6)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_7_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 7)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_8_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 8)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+#5 pm and after/17:00 and after
+
+visitor_hour_17_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 17)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_18_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 18)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_19_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 19)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_20_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 20)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_21_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 21)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_22_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 22)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+visitor_hour_23_wh <- wh_records_combined_dates_and_names_wo_extra |> 
+  group_by(hour) |> 
+  filter(hour == 23)|> 
+  count(full_names_visitor) |> 
+  arrange(desc(n))
+
+#hour 8 has the most visitors 
+```
 
 Senate: 
 D- Patty Murray, Chuck Shumer, Dick Durbin, Elizabeth Warren, Mark Warner 
@@ -231,20 +300,44 @@ D- Hakeem Jeffries, Katherine Clark, Pete Aguilar, James Clyburn
 R- Mike Johnson, Steve Svalise, Tom Emmer, Elise Stenfanik, Gary Palmer
 
 Stefanik and Emmer and Palmer did not visit the white house at all
-```{r}
 
-wh_records_names <- wh_records_combined_dates_and_names |>
+```{r}
+#condensing the name of the starting df 
+leadership <- wh_records_combined_dates_and_names_wo_extra
+
+#all of the visits by leadership
+filtered_leadership <- leadership|>
+  filter(full_names_visitor %in% c("PATTY_L_MURRAY","RICHARD_J_DURBIN","CHARLES_N_SCHUMER","ELIZABETH_N_WARREN","MARK_R_WARNER","ADDISON_M_MCCONNELL","JOHN_R_THUNE","KATHERINE_C_PHILLIPSBARRASSO","SHELLEY_M_CAPITO", "STEVE_J_SCALISE","HAKEEM_N_JEFFRIES","KATHERINE_M_CLARK","PETER_R_AGUILAR", "JAMES_E_CLYBURN","JAMES_M_JOHNSON","EMMER","STEFANIK", "PALMER"))
+
+#tally of how many times leadership visits 
+tally_leadership <- leadership |>
    group_by(full_names_visitor) |>
   summarize(count = n())
 
-
-wh_records_leadership <- wh_records_names|>
-  filter(full_names_visitor %in% c("PATTY_L_MURRAY","RICHARD_J_DURBIN","CHARLES_N_SCHUMER","ELIZABETH_N_WARREN","MARK_R_WARNER","ADDISON_M_MCCONNELL","JOHN_R_THUNE","KATHERINE_C_PHILLIPSBARRASSO","SHELLEY_M_CAPITO", "STEVE_J_SCALISE","HAKEEM_N_JEFFRIES","KATHERINE_M_CLARK","PETER_R_AGUILAR", "JAMES_E_CLYBURN","JAMES_M_JOHNSON","EMMER","STEFANIK", "PALMER"))
-
+#bar chart for who visits the most 
+tally_leadership |>
+  ggplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_bar(aes(x=full_names_visitor, weight=count)) +
+  labs(
+    title="Congressional Leadership Visits to White House",
+    x = "name",
+    y = "visits",
+    caption = "source: White House"
+    
+  )
   
-
-
-
 ```
-Additional note: cleaning up the dates, particularly in the appointment_start_date column. We believe this is because the dates are characters and some are written with the hour and minute format and others are not. Not sure if this is something that can be resolved by using open refine? 
+
+
+
+
+
+
+
+
+
+
+
+
 
