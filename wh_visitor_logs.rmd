@@ -293,7 +293,7 @@ visitor_hour_23_wh <- wh_records_combined_dates_and_names_wo_extra |>
 #hour 8 has the most visitors 
 ```
 
-Question 5: how frequently does house or senate leadership visit the WH? A better question is what percentage of the logged visits are from leaders of the house or senate. We haven't thoroughly investigated this question yet, but we believe that we could create a list of names of high-ranking leadership: speaker of the house, minority whip, etc., and write a code using string detect and mutate to create a column that will be marked as yes if the entry is from a member of the house/senate leadership, and no if it is not. 
+Question 5: how frequently does house or senate leadership visit the WH? A better question is what percentage of the logged visits are from leaders of the house or senate. 
 
 Senate: 
 D- Patty Murray, Chuck Shumer, Dick Durbin, Elizabeth Warren, Mark Warner 
@@ -303,7 +303,8 @@ House:
 D- Hakeem Jeffries, Katherine Clark, Pete Aguilar, James Clyburn 
 R- Mike Johnson, Steve Svalise, Tom Emmer, Elise Stenfanik, Gary Palmer
 
-Stefanik and Emmer and Palmer did not visit the white house at all
+
+
 
 ```{r}
 #condensing the name of the starting df 
@@ -311,10 +312,10 @@ leadership <- wh_records_combined_dates_and_names_wo_extra
 
 #all of the visits by leadership
 filtered_leadership <- leadership|>
-  filter(full_names_visitor %in% c("PATTY_L_MURRAY","RICHARD_J_DURBIN","CHARLES_N_SCHUMER","ELIZABETH_N_WARREN","MARK_R_WARNER","ADDISON_M_MCCONNELL","JOHN_R_THUNE","KATHERINE_C_PHILLIPSBARRASSO","SHELLEY_M_CAPITO", "STEVE_J_SCALISE","HAKEEM_N_JEFFRIES","KATHERINE_M_CLARK","PETER_R_AGUILAR", "JAMES_E_CLYBURN","JAMES_M_JOHNSON","EMMER","STEFANIK", "PALMER"))
+  filter(full_names_visitor %in% c("PATTY_L_MURRAY","RICHARD_J_DURBIN","CHARLES_E_SCHUMER","ELIZABETH_A_WARREN","MARK_R_WARNER","ADDISON_M_MCCONNELL","JOHN_R_THUNE","KATHERINE_C_PHILLIPSBARRASSO","SHELLEY_M_CAPITO", "STEVE_J_SCALISE","HAKEEM_S_JEFFRIES","KATHERINE_M_CLARK","PETER_R_AGUILAR", "JAMES_E_CLYBURN","JAMES_M_JOHNSON","TOM_EEMMER","ELISE_M_STEFANIK", "GARY_A_PALMER"))
 
 #tally of how many times leadership visits 
-tally_leadership <- leadership |>
+tally_leadership <- filtered_leadership |>
    group_by(full_names_visitor) |>
   summarize(count = n())
 
@@ -333,9 +334,13 @@ tally_leadership |>
   
 ```
 
+Story Ideas:
 
+The Israel Ambassador visited more than anyon else Michael N Herzog. We should investigate when he visited, too see if it was primarly after 10/7. We could write a story about increased communication with the embassy following the increased violence in the middle east, and because of the conflict, it would be newsworthy to evaluate Herzog and explain his role.   
 
+When does the minority come to visit? Mcconnel, Stefanik, Emmer and Palmer did not visit the white house at all, and Scalise visited only once. Collabortation with the White House is a central part of leadership jobs, even the minority's job (technically.) IWe would run this for other administration's data and compare how often minority members visited differing administrations. We would also contact each member's comms team and hear what their explation is. 
 
+Office hours for a normal job are commonly referred to as a “nine-to-five" operation. But running the county means working all hours. Still, for the White House to take a meeting late into the night the visit may signify notable importance. In our analysis of White House visitor logs between January 2022 and June 2023 we uncovered 933 meetings taking place between the hours of 9:00 p.m. and 2:00 a.m. Who are the most frequent visitors skulking through the White House during the dead of night and what could be so important it can’t wait until the morning? This story will examine the nightly activities of the Biden White House. To make the story better, we would need journalistic access to the people coming and going from the building. 
 
 
 
