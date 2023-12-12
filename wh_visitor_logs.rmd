@@ -163,7 +163,11 @@ wh_records_combined_names
 ```
 
 Question 2: Who gets the most visitors?
-Answer: Outside of the president, the three individuals who receive the most visitors are Ed Teleky (Director of Ceremonies at the White House), Gionelly Mills (Staff Assistant focusing on Communications, Celebrity Engagement, and Events at the White House), and Lydia Hecmanczuk (IT Specialist in the Executive Office of the President).
+Answer: When you take away staff that would generally deal with the public the top five White House officials in order of number of visits received are: VPOTUS(4306 visits)  this is Kamala Harris
+FLOTUS (1905 visits) this is First Lady, Jill Biden
+Tarun Chhabra (1853 visits) Tarun served on the White House National Security Council staff as Director for Strategic Planning and Director for Human Rights and National Security Issues, according to his bio at the Center for Security and Emerging Technology.
+Claudia Marconi (1657 visit) Claudia Marconi is White House Senior Advisor for Congressional Engagement. She  in charge of all the logistical details of Members of Congress’ engagement for events and meetings at the White House, and travel with the President and First Lady.
+John Finer (1432  visits) – Finer is the Principal Deputy National Security Advisor at the White House. He previously served as Chief of Staff and Director of Policy Planning at the U.S. Department of State, according to his bio on
 
 ```{r}
 #refining the visitee record using open refine
